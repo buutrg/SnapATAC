@@ -574,18 +574,19 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1){
 		stop()
 	}
 
-	message("Epoch: checking snap files contain the same bins ...");
-	# check if bins match
-	bin.list = mclapply(fileList, function(x){
-		readBins(x, bin.size=bin.size)
-	}, mc.cores=num.cores)
+	message("Bypassed check of snap files contain the same bins ...");
+	# message("Epoch: checking snap files contain the same bins ...");
+	# # check if bins match
+	# bin.list = mclapply(fileList, function(x){
+	# 	readBins(x, bin.size=bin.size)
+	# }, mc.cores=num.cores)
 	
-	if(!all(sapply(bin.list, FUN = identical, bin.list[[1]]))){
-		stop("bins does not match between snap files, please regenerate the cell-by-bin matrix by snaptools")
-	}
-	
-	# read the snap object
+	# if(!all(sapply(bin.list, FUN = identical, bin.list[[1]]))){
+	# 	stop("bins does not match between snap files, please regenerate the cell-by-bin matrix by snaptools")
+	# }
+
 	message("Epoch: reading cell-bin count matrix session ...");
+	# read the snap object
 	if(do.par){
 		obj.ls = mclapply(fileList, function(file){
 			idx = which(obj@file == file)
