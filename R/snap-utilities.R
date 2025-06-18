@@ -628,7 +628,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1, 
 		}
 
 		# res = Reduce(snapRbind, obj.ls);		
-		res = mat_rbind
+		res = mat_rbind[[1]]
 	}
 
 	obj@feature = res@feature;
