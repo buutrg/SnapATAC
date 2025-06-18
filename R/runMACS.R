@@ -140,7 +140,7 @@ runMACS <- function(
 	
 	# write down the barcodes
 	cat("Epoch: extracting fragments from each snap files ...\n", file = stderr())
-	flag.list = lapply(seq(fileList), function(i){
+	flag.list = mclapply(seq(fileList), function(i){
 		file.name = fileList[[i]];
 		idx = which(obj@file == file.name);
 		barcode.use = obj@barcode[idx]
@@ -149,7 +149,7 @@ runMACS <- function(
 		                 col.names = FALSE, qmethod = c("escape", "double"),
 		                 fileEncoding = "")
 		
-	})
+	}, mc.cores=num.cores)
 	
 	# extract the fragments belong to the barcodes	
 	flag.list = mclapply(seq(fileList), function(i){
