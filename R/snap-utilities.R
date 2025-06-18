@@ -517,7 +517,7 @@ addBmatToSnap <- function(obj, bin.size, do.par, num.cores){
 }
 
 #' @export
-addBmatToSnap.default <- function(obj, bin.size=5000, do.par=FALSE, num.cores=1){	
+addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1){	
 	# close the previously opened H5 file
 	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
 		rhdf5::h5closeAll();		
