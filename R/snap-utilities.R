@@ -512,12 +512,12 @@ createSnap.default <- function(file, sample, description=NULL, do.par=TRUE, num.
 #' @importFrom parallel mclapply
 #' @importFrom methods is
 #' @export
-addBmatToSnap <- function(obj, bin.size, do.par, num.cores){
+addBmatToSnap <- function(obj, bin.size, do.par, num.cores, N_member = 2){
   UseMethod("addBmatToSnap", obj);
 }
 
 #' @export
-addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1){	
+addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1, N_member = 2){	
 	# close the previously opened H5 file
 	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
 		rhdf5::h5closeAll();		
@@ -589,11 +589,12 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1){
 	# read the snap object
 	if(do.par){
 		obj.ls = mclapply(fileList, function(file){
+			# file = fileList[[1]]
 			idx = which(obj@file == file)
 			idx2 = which(fileList == file)
 			if (idx2 %% 10 == 0) print(idx2)
-			addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
-		}, mc.cores=num.cores);		
+			SnapATAC:::addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
+		}, mc.cores=num.cores);
 	}else{
 		obj.ls = lapply(fileList, function(file){
 			idx = which(obj@file == file)
@@ -601,13 +602,35 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1){
 		});		
 	}
 
+	message("Epoch: checking snap objects are not null ...");
+	print(sapply(obj.ls, function(x) is.null(x)))
+
 	message("Epoch: combining snap objects ...");
 	# combine
 	if((x=length(obj.ls)) == 1L){
 		res = obj.ls[[1]]
 	}else{
-		res = Reduce(snapRbind, obj.ls);		
+		mat_rbind = obj.ls
+		Nls = length(mat_rbind)
+
+		iter = 1
+		while (Nls > 1) {
+			iter = iter + 1
+			Nls = length(mat_rbind)
+			message(paste0("Iter: ", iter, " / Length: ", Nls))
+			idx = split(1:Nls, ceiling(1:Nls / N_member))
+			mat_rbind_tmp = mclapply(idx, function(x) {
+				# x = idx[[1]]
+				res = Reduce(snapRbind, mat_rbind[x])
+				return(res)
+			}, mc.cores=num.cores)
+			mat_rbind = mat_rbind_tmp
+		}
+
+		# res = Reduce(snapRbind, obj.ls);		
+		res = mat_rbind
 	}
+
 	obj@feature = res@feature;
 	obj@bmat = res@bmat;
 	rm(res, obj.ls);
