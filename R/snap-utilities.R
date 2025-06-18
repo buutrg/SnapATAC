@@ -479,7 +479,8 @@ createSnap.default <- function(file, sample, description=NULL, do.par=TRUE, num.
 			createSnapSingle(file=fileList[[i]], sample=sampleList[[i]]);
 		});		
 	}
-	
+
+	message("Epoch: combining snap objects ...");
 	obj = Reduce(snapRbind, obj.ls);
 	rm(obj.ls);
 	gc();
