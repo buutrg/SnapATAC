@@ -539,41 +539,45 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1){
 	
 	fileList = as.list(unique(obj@file));
 
+	message("Epoch: checking snap files exist ...");
 	# check if snap files exist
-	if(any(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)){
-		idx = which(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)
+	if(any(do.call(c, mclapply(fileList, function(x){file.exists(x)}, mc.cores=num.cores)) == FALSE)){
+		idx = which(do.call(c, mclapply(fileList, function(x){file.exists(x)}, mc.cores=num.cores)) == FALSE)
 		print("error: these files does not exist")
 		print(fileList[idx])
 		stop()
 	}
 	
+	message("Epoch: checking snap files are all snap files ...");
 	# check if files are all snap files
-	if(any(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)){
-		idx = which(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)
+	if(any(do.call(c, mclapply(fileList, function(x){isSnapFile(x)}, mc.cores=num.cores)) == FALSE)){
+		idx = which(do.call(c, mclapply(fileList, function(x){isSnapFile(x)}, mc.cores=num.cores)) == FALSE)
 		print("error: these files are not snap file")
 		print(fileList[idx])
 		stop()
 	}
 	
+	message("Epoch: checking snap files contain AM session ...");
 	# check if BM session exist
-	if(any(do.call(c, lapply(fileList, function(x){ "AM" %in% h5ls(x, recursive=1)$name  })) == FALSE)){
-		idx = which(do.call(c, lapply(fileList, function(x){ "AM" %in% h5ls(x, recursive=1)$name  })) == FALSE)
+	if(any(do.call(c, mclapply(fileList, function(x){ "AM" %in% h5ls(x, recursive=1)$name  }, mc.cores=num.cores)) == FALSE)){
+		idx = which(do.call(c, mclapply(fileList, function(x){ "AM" %in% h5ls(x, recursive=1)$name  }, mc.cores=num.cores)) == FALSE)
 		print("error: the following nsap files do not contain AM session")
 		print(fileList[idx])
 		stop()
 	}
 	
-	if(any(do.call(c, lapply(fileList, function(x){(bin.size %in% showBinSizes(x))})) == FALSE)){
-		idx = which(do.call(c, lapply(fileList, function(x){(bin.size %in% showBinSizes(x))})) == FALSE)
+	message("Epoch: checking snap files contain chosen bin size ...");
+	if(any(do.call(c, mclapply(fileList, function(x){(bin.size %in% showBinSizes(x))}, mc.cores=num.cores)) == FALSE)){
+		idx = which(do.call(c, mclapply(fileList, function(x){(bin.size %in% showBinSizes(x))}, mc.cores=num.cores)) == FALSE)
 		print("error: chosen bin size does not exist in the following snap files")
 		print(fileList[idx])
 		stop()
 	}
 
 	# check if bins match
-	bin.list = lapply(fileList, function(x){
+	bin.list = mclapply(fileList, function(x){
 		readBins(x, bin.size=bin.size)
-	})
+	}, mc.cores=num.cores)
 	
 	if(!all(sapply(bin.list, FUN = identical, bin.list[[1]]))){
 		stop("bins does not match between snap files, please regenerate the cell-by-bin matrix by snaptools")
