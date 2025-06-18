@@ -584,6 +584,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1){
 	if(do.par){
 		obj.ls = mclapply(fileList, function(file){
 			idx = which(obj@file == file)
+			if (idx %% 10 == 0) print(idx)
 			addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
 		}, mc.cores=num.cores);		
 	}else{
@@ -592,7 +593,8 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1){
 			addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
 		});		
 	}
-	
+
+	message("Epoch: combining snap objects ...");
 	# combine
 	if((x=length(obj.ls)) == 1L){
 		res = obj.ls[[1]]
