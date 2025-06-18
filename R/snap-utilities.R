@@ -574,6 +574,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1){
 		stop()
 	}
 
+	message("Epoch: checking snap files contain the same bins ...");
 	# check if bins match
 	bin.list = mclapply(fileList, function(x){
 		readBins(x, bin.size=bin.size)
