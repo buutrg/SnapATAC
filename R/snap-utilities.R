@@ -408,7 +408,7 @@ createSnap <- function(file, sample, description, do.par, num.cores) {
 }
 
 #' @export
-createSnap.default <- function(file, sample, description=NULL, do.par=FALSE, num.cores=1){
+createSnap.default <- function(file, sample, description=NULL, do.par=TRUE, num.cores=1){
 	
 	if(missing(file)){
 		stop("file is missing");
@@ -471,6 +471,7 @@ createSnap.default <- function(file, sample, description=NULL, do.par=FALSE, num
 	message("Epoch: reading the barcode session ...");
 	if(do.par){
 		obj.ls = mclapply(as.list(seq(fileList)), function(i){
+			if (i %% 10 == 0) print(i)
 			createSnapSingle(file=fileList[[i]], sample=sampleList[[i]]);
 		}, mc.cores=num.cores);
 	}else{
