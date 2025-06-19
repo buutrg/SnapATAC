@@ -593,7 +593,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1, 
 			idx = which(obj@file == file)
 			idx2 = which(fileList == file)
 			if (idx2 %% 10 == 0) print(idx2)
-			SnapATAC:::addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
+			addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
 		}, mc.cores=num.cores);
 	}else{
 		obj.ls = lapply(fileList, function(file){
@@ -1865,7 +1865,7 @@ addBmatToSnapSingle <- function(obj, file, bin.size=5000){
 	if(length(bin.sizeList) == 0){stop("Error @addBmat: bin.sizeList is empty! Does not support reading empty snap file")}
 	if(!(bin.size %in% bin.sizeList)){stop(paste("Error @addBmat: ", bin.size, " does not exist in bin.sizeList, valid bin.size includes ", toString(bin.sizeList), "\n", sep=""))}
 	
-	bins = SnapATAC:::readBins(file, bin.size);
+	bins = readBins(file, bin.size);
 	obj@feature = bins;
 	idx = as.numeric(tryCatch(idx <- h5read(file, paste("AM", bin.size, "idx", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idx' not found in ",file))}));
 	idy = as.numeric(tryCatch(idy <- h5read(file, paste("AM", bin.size, "idy", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idy' not found in ",file))}));
