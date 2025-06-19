@@ -589,7 +589,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1, 
 	# read the snap object
 	if(do.par){
 		obj.ls = mclapply(fileList, function(file){
-			# file = fileList[[1]]
+			file = fileList[[1]]
 			idx = which(obj@file == file)
 			idx2 = which(fileList == file)
 			if (idx2 %% 10 == 0) print(idx2)
@@ -1865,7 +1865,7 @@ addBmatToSnapSingle <- function(obj, file, bin.size=5000){
 	if(length(bin.sizeList) == 0){stop("Error @addBmat: bin.sizeList is empty! Does not support reading empty snap file")}
 	if(!(bin.size %in% bin.sizeList)){stop(paste("Error @addBmat: ", bin.size, " does not exist in bin.sizeList, valid bin.size includes ", toString(bin.sizeList), "\n", sep=""))}
 	
-	bins = readBins(file, bin.size);
+	bins = SnapATAC:::readBins(file, bin.size);
 	obj@feature = bins;
 	idx = as.numeric(tryCatch(idx <- h5read(file, paste("AM", bin.size, "idx", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idx' not found in ",file))}));
 	idy = as.numeric(tryCatch(idy <- h5read(file, paste("AM", bin.size, "idy", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idy' not found in ",file))}));
@@ -1876,7 +1876,11 @@ addBmatToSnapSingle <- function(obj, file, bin.size=5000){
 	nBin = length(obj@feature);
 	M = sparseMatrix(i=idx, j =idy, x=count, dims=c(nBarcode, nBin));
 	rownames(M) = barcode;
-	obj@bmat = M[match(obj@barcode, rownames(M)),]
+	M_sub = M[match(obj@barcode, rownames(M)),]
+	if (length(obj@barcode) == 1) {
+		M_sub = Matrix::Matrix(M_sub, nrow=1)
+	}
+	obj@bmat = M_sub
 	rm(idx, idy, count, M);
 	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
 		rhdf5::h5closeAll();		
