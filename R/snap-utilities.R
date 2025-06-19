@@ -589,7 +589,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1, 
 	# read the snap object
 	if(do.par){
 		obj.ls = mclapply(fileList, function(file){
-			file = fileList[[1]]
+			# file = fileList[[1]]
 			idx = which(obj@file == file)
 			idx2 = which(fileList == file)
 			if (idx2 %% 10 == 0) print(idx2)
