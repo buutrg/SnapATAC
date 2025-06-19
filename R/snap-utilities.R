@@ -593,7 +593,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=TRUE, num.cores=1, 
 			idx = which(obj@file == file)
 			idx2 = which(fileList == file)
 			if (idx2 %% 10 == 0) print(idx2)
-			addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
+			SnapATAC:::addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
 		}, mc.cores=num.cores);
 	}else{
 		obj.ls = lapply(fileList, function(file){
